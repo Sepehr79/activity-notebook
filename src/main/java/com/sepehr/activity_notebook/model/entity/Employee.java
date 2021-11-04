@@ -7,18 +7,18 @@ import lombok.NonNull;
 
 import javax.persistence.*;
 
-@EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
 @Data
-public class Admin extends Person {
+@EqualsAndHashCode(callSuper = true)
+public class Employee extends Person{
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "AdminSEQ")
-    @SequenceGenerator(name = "AdminSEQ", initialValue = 100)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "EmployeeSEQ")
+    @SequenceGenerator(name = "EmployeeSEQ", initialValue = 100)
     private long id;
 
-    public Admin(@NonNull String userName, @NonNull String password) {
+    public Employee(@NonNull String userName, @NonNull String password) {
         super(userName, password);
     }
 

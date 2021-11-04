@@ -1,12 +1,13 @@
 package com.sepehr.activity_notebook.model.repo;
 
 import com.sepehr.activity_notebook.model.entity.Admin;
+import com.sepehr.activity_notebook.model.exception.DuplicateEntityException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @DataJpaTest
 class AdminRepoTest {
@@ -14,26 +15,21 @@ class AdminRepoTest {
     @Autowired
     AdminRepo adminRepo;
 
+    private static final String USER_NAME = "sepehrmsm1379@gmail.com";
+
     @Test
-    void saveAdmin(){
-
-        Admin admin = new Admin("sepehrmsm1379@gmail.com", "secret_password");
-        admin.setName("sepehr");
-        admin.setAge(20);
-        admin.setLastName("mollaei");
-
-        adminRepo.save(admin);
+    void saveAdmin() throws DuplicateEntityException {
+        Admin admin = new Admin(USER_NAME, "secret_password");
+        admin = (Admin) adminRepo.safeSave(admin);
 
         assertTrue(adminRepo.existsById(admin.getId()));
-        assertEquals(100, admin.getId());
+        assertTrue(adminRepo.existsByUserName("sepehrmsm1379@gmail.com"));
 
-        admin.setName("ali");
-        adminRepo.save(admin); // Update admin
-
-        assertEquals("ali" ,adminRepo.findById(100L).get().getName());
-
-        assertEquals(1, adminRepo.count());
+        try {
+            adminRepo.safeSave(new Admin(USER_NAME, "12345678910"));
+            fail();
+        }catch (Exception exception){
+            assertTrue(exception instanceof DuplicateEntityException);
+        }
     }
-
-
 }
