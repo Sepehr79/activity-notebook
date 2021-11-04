@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -18,8 +20,15 @@ public class Admin extends Person {
     @SequenceGenerator(name = "AdminSEQ", initialValue = 100)
     private long id;
 
+    @OneToMany(mappedBy = "admin", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    private List<Activity> activities = new LinkedList<>();
+
     public Admin(@NonNull String userName, @NonNull String password) {
         super(userName, password);
     }
 
+    public void addActivity(Activity activity){
+        activity.setAdmin(this);
+        activities.add(activity);
+    }
 }
