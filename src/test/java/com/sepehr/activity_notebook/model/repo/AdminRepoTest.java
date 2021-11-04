@@ -20,7 +20,7 @@ class AdminRepoTest {
     @Test
     void saveAdmin() throws DuplicateEntityException {
         Admin admin = new Admin(USER_NAME, "secret_password");
-        admin = (Admin) adminRepo.safeSave(admin);
+        admin = adminRepo.safeSave(admin);
 
         assertTrue(adminRepo.existsById(admin.getId()));
         assertTrue(adminRepo.existsByUserName("sepehrmsm1379@gmail.com"));
