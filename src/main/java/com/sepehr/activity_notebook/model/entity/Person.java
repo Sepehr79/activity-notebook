@@ -1,10 +1,7 @@
 package com.sepehr.activity_notebook.model.entity;
 
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -14,6 +11,7 @@ import javax.validation.constraints.Size;
 @RequiredArgsConstructor
 @NoArgsConstructor
 @Data
+@EqualsAndHashCode(of = "userName")
 public abstract class Person {
 
     @Column(name = "user_name", nullable = false, unique = true)

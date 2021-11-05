@@ -6,11 +6,13 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
+@EqualsAndHashCode(callSuper = true, of = "id")
 @Entity
 @NoArgsConstructor
 @Data
-@EqualsAndHashCode(callSuper = true)
 public class Employee extends Person{
 
     @Id
@@ -18,8 +20,19 @@ public class Employee extends Person{
     @SequenceGenerator(name = "EmployeeSEQ", initialValue = 100)
     private long id;
 
+    @ManyToMany(mappedBy = "employeeSet", fetch = FetchType.EAGER,
+    cascade = {
+            CascadeType.REFRESH, CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST
+    })
+    private Set<Admin> adminSet = new HashSet<>();
+
     public Employee(@NonNull String userName, @NonNull String password) {
         super(userName, password);
+    }
+
+    public void addAdmin(Admin admin){
+        admin.getEmployeeSet().add(this);
+        adminSet.add(admin);
     }
 
 }

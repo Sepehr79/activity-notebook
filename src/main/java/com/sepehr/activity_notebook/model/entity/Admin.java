@@ -1,18 +1,16 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true, of = "id")
 @Entity
 @NoArgsConstructor
 @Data
+@ToString(of = "id")
 public class Admin extends Person {
 
     @Id
@@ -21,7 +19,12 @@ public class Admin extends Person {
     private long id;
 
     @OneToMany(mappedBy = "admin", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
-    private List<Activity> activities = new LinkedList<>();
+    private Set<Activity> activities = new HashSet<>();
+
+    @ManyToMany(cascade = {CascadeType.ALL}, fetch = FetchType.EAGER)
+    @JoinTable(joinColumns = @JoinColumn(name = "admin_id"),
+            inverseJoinColumns = @JoinColumn(name = "employee_id"))
+    private Set<Employee> employeeSet = new HashSet<>();
 
     public Admin(@NonNull String userName, @NonNull String password) {
         super(userName, password);
@@ -30,5 +33,10 @@ public class Admin extends Person {
     public void addActivity(Activity activity){
         activity.setAdmin(this);
         activities.add(activity);
+    }
+
+    public void addEmployee(Employee employee){
+        employee.getAdminSet().add(this);
+        employeeSet.add(employee);
     }
 }

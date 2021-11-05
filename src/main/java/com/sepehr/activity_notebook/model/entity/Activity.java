@@ -1,9 +1,6 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -11,6 +8,7 @@ import javax.persistence.*;
 @Data
 @RequiredArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Activity {
 
     @Id
@@ -23,7 +21,7 @@ public class Activity {
 
     private @NonNull int score;
 
-    @ManyToOne(fetch = FetchType.EAGER,cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.REFRESH})
+    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
     @JoinColumn(name = "admin")
     private Admin admin;
 
