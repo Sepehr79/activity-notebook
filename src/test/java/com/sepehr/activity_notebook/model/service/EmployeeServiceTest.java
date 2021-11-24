@@ -1,7 +1,10 @@
 package com.sepehr.activity_notebook.model.service;
 
 import com.sepehr.activity_notebook.model.entity.Activity;
+import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Employee;
+import com.sepehr.activity_notebook.model.exception.DuplicateEntityException;
+import com.sepehr.activity_notebook.model.exception.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +20,8 @@ public class EmployeeServiceTest {
 
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private AdminService adminService;
 
     @Test
     void testAddActivityToEmployee(){
@@ -37,6 +42,32 @@ public class EmployeeServiceTest {
         assertEquals(PASSWORD ,savedEmployee.getPassword());
         assertEquals(3 ,savedEmployee.getActivitySet().size());
 
+    }
+
+    @Test
+    void testSaveActivityWithAdmin() throws DuplicateEntityException, EntityNotFoundException {
+        Admin admin = new Admin(USER_MAME, PASSWORD);
+        Employee employee = new Employee(USER_MAME + "different", PASSWORD);
+        Activity activity = new Activity("simple", 1);
+
+        admin.addActivity(activity);
+        employee.addActivity(activity);
+
+        adminService.saveAdmin(admin);
+        employeeService.saveEmployee(employee);
+
+        Admin savedAdmin = adminService.findAdminByUserName(USER_MAME);
+        Employee savedEmployee = employeeService.findEmployeeByUserName(USER_MAME + "different");
+
+        assertEquals(1, savedAdmin.getActivities().size());
+        assertEquals(1, savedEmployee.getActivitySet().size());
+
+        Activity employeeActivity = savedEmployee.getActivitySet().stream().findFirst()
+                .orElseThrow(EntityNotFoundException::new);
+        Activity adminActivity = savedAdmin.getActivities().stream().findFirst()
+                .orElseThrow(EntityNotFoundException::new);
+
+        assertEquals(employeeActivity.getActivityName(), adminActivity.getActivityName()); // simple
     }
 
 }
