@@ -26,6 +26,9 @@ public class Employee extends Person{
     })
     private Set<Admin> adminSet = new HashSet<>();
 
+    @OneToMany(mappedBy = "employee", fetch = FetchType.EAGER, cascade = {CascadeType.ALL})
+    private Set<Activity> activitySet = new HashSet<>();
+
     public Employee(@NonNull String userName, @NonNull String password) {
         super(userName, password);
     }
@@ -33,6 +36,11 @@ public class Employee extends Person{
     public void addAdmin(Admin admin){
         admin.getEmployeeSet().add(this);
         adminSet.add(admin);
+    }
+
+    public void addActivity(Activity activity){
+        activity.setEmployee(this);
+        activitySet.add(activity);
     }
 
 }

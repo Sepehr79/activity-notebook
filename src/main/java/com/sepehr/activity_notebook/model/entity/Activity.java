@@ -25,4 +25,8 @@ public class Activity {
     @JoinColumn(name = "admin")
     private Admin admin;
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
+    @JoinColumn(name = "employee")
+    private Employee employee;
+
 }
