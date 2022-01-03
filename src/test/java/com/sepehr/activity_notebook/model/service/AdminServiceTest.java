@@ -65,6 +65,7 @@ class AdminServiceTest {
         Admin ali = ADMIN.toBuilder().name(name).build();
         adminService.save(ali); // Update admin
         assertEquals(adminService.findById(ADMIN.getId()).get().getName(), name);
+        assertEquals(1 ,adminRepo.count());
     }
 
     @Test
