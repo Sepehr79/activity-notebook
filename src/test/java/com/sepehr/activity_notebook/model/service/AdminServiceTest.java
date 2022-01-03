@@ -1,75 +1,96 @@
 package com.sepehr.activity_notebook.model.service;
 
-import com.sepehr.activity_notebook.model.entity.Activity;
 import com.sepehr.activity_notebook.model.entity.Admin;
-import com.sepehr.activity_notebook.model.entity.Employee;
-import com.sepehr.activity_notebook.model.exception.DuplicateEntityException;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
+import com.sepehr.activity_notebook.model.repo.AdminRepo;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.sepehr.activity_notebook.model.entity.Gender.MALE;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 @SpringBootTest
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@Disabled // TODO fails when run with other
+@TestPropertySource(
+        properties = {
+                "spring.data.mongodb.database=test123",
+                "spring.data.mongodb.auto-index-creation=true"
+        }
+)
+@Slf4j
 class AdminServiceTest {
+
+    private static final String USER_NAME = "sepehrmsm1379@gmail.com";
 
     @Autowired
     AdminService adminService;
 
-    private static final String USER_NAME = "sepehrmollaeimsm1379@gmail.com";
-    private static final String PASSWORD = "123456789";
+    @Autowired
+    AdminRepo adminRepo;
 
-    @BeforeAll
-    void saveAdmins() throws DuplicateEntityException {
-        Admin admin = new Admin(USER_NAME, PASSWORD);
+    private static final Admin ADMIN = Admin.builder()
+                    .userName(USER_NAME)
+                    .password("1234")
+                    .name("Sepehr")
+                    .lastName("mollaei")
+                    .gender(MALE)
+                    .build();;
 
-        admin.addActivity(new Activity("Interview", 10));
-        admin.addActivity(new Activity("Exercise", 20));
-        admin.addActivity(new Activity("Writing", 15));
+    @BeforeEach
+    @SneakyThrows
+    void saveAdmin(){
+        adminService.save(ADMIN);
+    }
 
-        admin.addEmployee(new Employee("sa@gmail.com", "paraaaaaaaaaaa"));
-        admin.addEmployee(new Employee("pa@gmail.com", "paraaaaaaaaaaa"));
-        admin.addEmployee(new Employee("ka@gmail.com", "paraaaaaaaaaaa"));
-
-        adminService.saveAdmin(admin);
+    @AfterEach
+    void clearMongo(){
+        adminRepo.deleteAll();
     }
 
     @Test
-    void adminTest(){
-
-        Admin savedAdmin = adminService.findAdminByUserName(USER_NAME);
-        assertNotNull(savedAdmin);
-        assertEquals( 3 ,savedAdmin.getEmployeeSet().size());
-        assertEquals(3 ,savedAdmin.getActivities().size());
-
-        savedAdmin = adminService.findAdminById(100);
-        assertEquals( 3 ,savedAdmin.getEmployeeSet().size());
-        assertEquals(3 ,savedAdmin.getActivities().size());
+    void testSaveAndGetAdmin(){
+        Admin savedAdmin = adminService.findAdminByUserName(USER_NAME).get();
+        assertEquals(ADMIN, savedAdmin);
+        assertNotNull(savedAdmin.getJoinAt());
     }
 
     @Test
-    void activityTest(){
-        List<Activity> activities = adminService.findActivitiesByAdminId(100);
-        assertEquals(3, activities.size());
-
-        List<Activity> activitiesByUserName = adminService.findActivitiesByAdminUserName(USER_NAME);
-        assertEquals(3, activitiesByUserName.size());
+    @SneakyThrows
+    void testSaveAndUpdateAdmin(){
+        final String name = "ALI";
+        Admin ali = ADMIN.toBuilder().name(name).build();
+        adminService.save(ali); // Update admin
+        assertEquals(adminService.findById(ADMIN.getId()).get().getName(), name);
+        assertEquals(1 ,adminRepo.count());
     }
 
     @Test
-    void employeeTest(){
-        Set<Employee> employeeSet = adminService.findEmployeesByAdminId(100);
-        assertEquals(3, employeeSet.size());
+    void testDeleteAdmin(){
+        adminService.removeAdmin(ADMIN);
+        Optional<Admin> adminOptional = adminService.findByUserName(USER_NAME);
+        assertTrue(adminOptional.isEmpty());
+    }
+
+    @Test
+    void testWithDuplicateUserName(){
+        Admin admin = Admin.builder().name("sepehr").lastName("mollaei")
+                .userName(USER_NAME) // Duplicate userName
+                .build();
+        try {
+            adminService.save(admin);
+            fail();
+        } catch (Exception exception){
+            assertTrue(exception instanceof DuplicateUserNameException);
+            assertEquals(USER_NAME ,((DuplicateUserNameException) exception).getUserName());
+        }
     }
 
 }

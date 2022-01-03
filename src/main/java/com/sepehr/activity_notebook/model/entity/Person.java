@@ -1,31 +1,23 @@
 package com.sepehr.activity_notebook.model.entity;
 
-
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.Size;
+import java.util.Date;
 
-@MappedSuperclass
-@RequiredArgsConstructor
 @NoArgsConstructor
-@Data
-@EqualsAndHashCode(of = "userName")
+@SuperBuilder(toBuilder = true)
+@Getter
 public abstract class Person {
 
-    @Column(name = "user_name", nullable = false, unique = true)
-    private @NonNull String userName;
-
-    @Column(nullable = false)
-    @Size(min = 8,message = "Password must have greater than 8 characters")
-    private @NonNull String password;
-
+    @NonNull
     private String name;
 
-    @Column(name = "last_name")
+    @NonNull
     private String lastName;
 
-    private int age;
+    private Date birthDay;
+
+    private Gender gender;
 
 }

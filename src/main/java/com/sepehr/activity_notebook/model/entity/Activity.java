@@ -1,32 +1,18 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import javax.persistence.*;
-
-@Entity
 @Data
-@RequiredArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
-public class Activity {
+@AllArgsConstructor
+public final class Activity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ActSEQ")
-    @SequenceGenerator(name = "ActSEQ", initialValue = 100)
-    private long id;
+    private String title;
 
-    @Column(name = "activity")
-    private @NonNull String activityName;
+    private String description;
 
-    private @NonNull int score;
-
-    @ManyToOne(fetch = FetchType.LAZY,cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
-    @JoinColumn(name = "admin")
-    private Admin admin;
-
-    @ManyToOne(fetch = FetchType.LAZY, cascade = {CascadeType.DETACH, CascadeType.MERGE, CascadeType.REFRESH, CascadeType.PERSIST})
-    @JoinColumn(name = "employee")
-    private Employee employee;
+    private int score;
 
 }
