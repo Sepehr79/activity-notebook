@@ -1,13 +1,13 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
 
-@Data
 @NoArgsConstructor
+@SuperBuilder(toBuilder = true)
+@Getter
 public abstract class Person {
 
     @NonNull

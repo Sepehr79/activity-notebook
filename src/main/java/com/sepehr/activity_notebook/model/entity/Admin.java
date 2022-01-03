@@ -1,8 +1,9 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -14,9 +15,10 @@ import java.util.Set;
 
 @Document("admins")
 @EqualsAndHashCode(of = "userName", callSuper = false)
-@Data
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
-public class Admin extends Person {
+@Getter
+public class Admin extends Person{
 
     @Id
     private String id;
@@ -34,4 +36,5 @@ public class Admin extends Person {
     public void addEmployee(Employee employee){
         employeeSet.add(employee);
     }
+
 }
