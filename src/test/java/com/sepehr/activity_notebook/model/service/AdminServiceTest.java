@@ -4,7 +4,6 @@ import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
 import com.sepehr.activity_notebook.model.repo.AdminRepo;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
                 "spring.data.mongodb.auto-index-creation=true"
         }
 )
-@Slf4j
 class AdminServiceTest {
 
     private static final String USER_NAME = "sepehrmsm1379@gmail.com";
@@ -55,9 +53,10 @@ class AdminServiceTest {
         adminRepo.deleteAll();
     }
 
+    @SneakyThrows
     @Test
     void testSaveAndGetAdmin(){
-        Admin savedAdmin = adminService.findAdminByUserName(USER_NAME).get();
+        Admin savedAdmin = adminService.findAdminByUserName(USER_NAME);
         assertEquals(ADMIN, savedAdmin);
         assertNotNull(savedAdmin.getJoinAt());
     }
@@ -80,8 +79,15 @@ class AdminServiceTest {
     }
 
     @Test
+    void testRemoveAdminByUserName(){
+        adminService.removeAdmin(USER_NAME);
+        assertEquals(0, adminRepo.count());
+    }
+
+    @Test
     void testWithDuplicateUserName(){
         Admin admin = Admin.builder().name("sepehr").lastName("mollaei")
+                .password("1234")
                 .userName(USER_NAME) // Duplicate userName
                 .build();
         try {
@@ -91,6 +97,11 @@ class AdminServiceTest {
             assertTrue(exception instanceof DuplicateUserNameException);
             assertEquals(USER_NAME ,((DuplicateUserNameException) exception).getUserName());
         }
+    }
+
+    @Test
+    void testFindAll(){
+        assertEquals(1, adminService.findAll().size());
     }
 
 }

@@ -1,8 +1,10 @@
 package com.sepehr.activity_notebook.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.NonNull;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -24,8 +26,11 @@ public class Admin extends Person{
     private String id;
 
     @Indexed(unique = true)
+    @NonNull
     private String userName;
 
+    @NonNull
+    @JsonIgnore
     private String password;
 
     @CreatedDate
