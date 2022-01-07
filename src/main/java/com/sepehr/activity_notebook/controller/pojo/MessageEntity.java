@@ -1,4 +1,4 @@
-package com.sepehr.activity_notebook.controller;
+package com.sepehr.activity_notebook.controller.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
