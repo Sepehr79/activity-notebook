@@ -33,4 +33,12 @@ public class ExceptionManager {
                 HttpStatus.BAD_REQUEST
         );
     }
+
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<MessageEntity> handleNumberFormatException(NumberFormatException numberFormatException){
+        return new ResponseEntity<>(
+                new MessageEntity(numberFormatException.getMessage(), "Wrong input format"),
+                HttpStatus.BAD_REQUEST
+        );
+    }
 }
