@@ -1,6 +1,9 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 import java.util.Date;
@@ -8,6 +11,7 @@ import java.util.Date;
 @NoArgsConstructor
 @SuperBuilder(toBuilder = true)
 @Getter
+@Setter
 public abstract class Person {
 
     @NonNull
@@ -19,5 +23,7 @@ public abstract class Person {
     private Date birthDay;
 
     private Gender gender;
+
+
 
 }

@@ -1,40 +1,47 @@
 package com.sepehr.activity_notebook.model.entity;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Document("admins")
-@EqualsAndHashCode(of = "userName", callSuper = false)
+@EqualsAndHashCode(callSuper = true, of = "userName")
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Getter
+@Setter
 public class Admin extends Person{
+
+    @Indexed(unique = true)
+    @NonNull
+    private String userName;
 
     @Id
     private String id;
 
-    @Indexed(unique = true)
-    private String userName;
-
+    @NonNull
+    @JsonIgnore
     private String password;
 
     @CreatedDate
     private Date joinAt;
 
-    private Set<Employee> employeeSet = new HashSet<>();
+    @JsonProperty("employees")
+    private List<Employee> employees = new ArrayList<>();
 
     public void addEmployee(Employee employee){
-        employeeSet.add(employee);
+        employees.add(employee);
+    }
+
+    public void addEmployees(List<Employee> employees){
+        this.employees.addAll(employees);
     }
 
 }
