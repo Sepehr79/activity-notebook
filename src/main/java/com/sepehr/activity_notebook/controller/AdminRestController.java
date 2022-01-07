@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequestMapping("/notebook/v1")
 @RestController
@@ -24,25 +25,34 @@ public class AdminRestController {
     }
 
     @GetMapping("/admins/{userName}")
-    public Admin getByUserName(@PathVariable String userName) throws UserNotFoundException {
-        return adminService.findAdminByUserName(userName);
+    public Admin getByUserName(@PathVariable String userName) {
+        Optional<Admin> admin = adminService.findByUserName(userName);
+        if (admin.isPresent()){
+            return admin.get();
+        }
+        throw new UserNotFoundException(userName);
     }
 
     @PostMapping("/admins")
-    public Admin saveAdmin(@RequestBody AdminDocument adminDocument) throws DuplicateUserNameException {
+    public Admin saveAdmin(@RequestBody AdminDocument adminDocument) {
+        if (adminService.existsByUserName(adminDocument.getUserName()))
+            throw new DuplicateUserNameException(adminDocument.getUserName());
         return adminService.save(adminDocument.admin());
     }
 
     @PutMapping("/admins")
-    public Admin updateAdmin(@RequestBody AdminDocument adminDocument) throws UserNotFoundException, DuplicateUserNameException {
-        Admin previousAdmin = adminService.findAdminByUserName(adminDocument.getUserName());
-        return adminService.save(
-            adminDocument.admin().toBuilder()
-                    .id(previousAdmin.getId())
-                    .joinAt(previousAdmin.getJoinAt())
-                    .employees(previousAdmin.getEmployees())
-                    .build()
-        );
+    public Admin updateAdmin(@RequestBody AdminDocument adminDocument) {
+        Optional<Admin> admin = adminService.findByUserName(adminDocument.getUserName());
+        if (admin.isPresent()){
+            return adminService.save(
+                    adminDocument.admin().toBuilder()
+                            .id(admin.get().getId())
+                            .joinAt(admin.get().getJoinAt())
+                            .employees(admin.get().getEmployees())
+                            .build()
+            );
+        }
+        throw new UserNotFoundException(adminDocument.getUserName());
     }
 
     @DeleteMapping("/admins/{userName}")

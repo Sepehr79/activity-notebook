@@ -16,19 +16,8 @@ public class AdminService {
 
     private final AdminRepo adminRepo;
 
-    /**
-     * @throws DuplicateUserNameException when input has the same username.
-     */
     public Admin save(Admin admin) throws DuplicateUserNameException {
-        try {
-            return adminRepo.save(admin);
-        }catch (org.springframework.dao.DuplicateKeyException duplicateKeyException){
-            throw new DuplicateUserNameException("Username already exists.", admin.getUserName());
-        }
-    }
-
-    public Admin findAdminByUserName(String userName) throws UserNotFoundException {
-        return adminRepo.findByUserName(userName).orElseThrow(() -> new UserNotFoundException(userName));
+        return adminRepo.save(admin);
     }
 
     public Optional<Admin> findById(String id) {
@@ -51,5 +40,9 @@ public class AdminService {
 
     public List<Admin> findAll(){
         return adminRepo.findAll();
+    }
+
+    public boolean existsByUserName(String userName){
+        return adminRepo.existsByUserName(userName);
     }
 }

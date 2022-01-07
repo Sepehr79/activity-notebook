@@ -14,4 +14,5 @@ public interface AdminRepo extends MongoRepository<Admin, String> {
 
     void removeAdminByUserName(String userName);
 
+    boolean existsByUserName(String userName);
 }

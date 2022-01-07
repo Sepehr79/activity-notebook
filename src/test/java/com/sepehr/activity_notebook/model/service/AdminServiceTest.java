@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.test.context.TestPropertySource;
 
 import java.util.Optional;
@@ -92,9 +93,13 @@ class AdminServiceTest {
             adminService.save(admin);
             fail();
         } catch (Exception exception){
-            assertTrue(exception instanceof DuplicateUserNameException);
-            assertEquals(USER_NAME ,((DuplicateUserNameException) exception).getUserName());
+            assertTrue(exception instanceof DuplicateKeyException);
         }
+    }
+
+    @Test
+    void testExistsByUserName(){
+        assertTrue(adminService.existsByUserName(USER_NAME));
     }
 
     @Test

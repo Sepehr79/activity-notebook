@@ -2,18 +2,19 @@ package com.sepehr.activity_notebook.model.exception;
 
 import lombok.Getter;
 
-public class DuplicateUserNameException extends Exception{
+public class DuplicateUserNameException extends RuntimeException{
 
     @Getter
     private final String userName;
 
-    public DuplicateUserNameException(String message, String userName) {
-        super(message);
+    private static final String MESSAGE = "User not found with the given username.";
+
+    public DuplicateUserNameException(String userName) {
         this.userName = userName;
     }
 
     @Override
     public String getMessage() {
-        return super.getMessage() + " [UserName: " + userName + "]";
+        return MESSAGE + " [UserName: " + userName + "]";
     }
 }
