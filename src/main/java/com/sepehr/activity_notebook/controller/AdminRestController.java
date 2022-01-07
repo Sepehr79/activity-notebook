@@ -1,6 +1,7 @@
 package com.sepehr.activity_notebook.controller;
 
 import com.sepehr.activity_notebook.model.entity.Admin;
+import com.sepehr.activity_notebook.model.entity.Employee;
 import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
 import com.sepehr.activity_notebook.model.exception.UserNotFoundException;
 import com.sepehr.activity_notebook.model.input.AdminDocument;
@@ -34,29 +35,47 @@ public class AdminRestController {
         return adminService.save(adminDocument.admin());
     }
 
+    @PostMapping("/admins/{userName}/employees")
+    public Admin addEmployees(@PathVariable String userName, @RequestBody List<Employee> employees) throws UserNotFoundException, DuplicateUserNameException {
+        Admin admin = adminService.findAdminByUserName(userName);
+        admin.addEmployees(employees);
+        return adminService.save(admin);
+    }
+
+    @GetMapping("/admins/{userName}/employees")
+    public List<Employee> employees(@PathVariable String userName) throws UserNotFoundException {
+        Admin admin = adminService.findAdminByUserName(userName);
+        return admin.getEmployees();
+    }
+
+    @GetMapping("/admins/{userName}/employees/{index}")
+    public Employee getEmployee(@PathVariable String userName, @PathVariable String index) throws UserNotFoundException {
+        Admin admin = adminService.findAdminByUserName(userName);
+        return admin.getEmployees().get(Integer.parseInt(index));
+    }
+
     @PutMapping("/admins")
-    public Admin updateAdmin(Admin admin) throws UserNotFoundException, DuplicateUserNameException {
-        Admin previousAdmin = adminService.findAdminByUserName(admin.getUserName());
-        previousAdmin.toBuilder()
-                .name(admin.getName())
-                .lastName(admin.getLastName())
-                .password(admin.getPassword())
-                .birthDay(admin.getBirthDay())
-                .gender(admin.getGender())
-                .build();
-        return adminService.save(previousAdmin);
+    public Admin updateAdmin(@RequestBody AdminDocument adminDocument) throws UserNotFoundException, DuplicateUserNameException {
+        Admin previousAdmin = adminService.findAdminByUserName(adminDocument.getUserName());
+        return adminService.save(
+            adminDocument.admin().toBuilder()
+                    .id(previousAdmin.getId())
+                    .joinAt(previousAdmin.getJoinAt())
+                    .employees(previousAdmin.getEmployees())
+                    .build()
+        );
     }
 
     @DeleteMapping("/admins/{userName}")
     public MessageEntity removeAdmin(@PathVariable String userName){
         adminService.removeAdmin(userName);
-        return new MessageEntity("Process successfully completed.", "");
+        return new MessageEntity("Process successfully completed.", "Employee removed with username: " + userName);
     }
 
-    @DeleteMapping("/admins/sure")
+    @DeleteMapping("/admins")
     public MessageEntity removeAll(){
         adminService.removeAllAdmins();
-        return new MessageEntity("Process successfully completed.", "");
+        return new MessageEntity("Process successfully completed.", "All employees removed.");
     }
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -71,6 +90,14 @@ public class AdminRestController {
     public ResponseEntity<MessageEntity> handleDuplicateUserNameException(DuplicateUserNameException duplicateUserNameException){
         return new ResponseEntity<>(
                 new MessageEntity(duplicateUserNameException.getMessage(), ""),
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(IndexOutOfBoundsException.class)
+    public ResponseEntity<MessageEntity> handleIndexOutOfBoundsException(IndexOutOfBoundsException index){
+        return new ResponseEntity<>(
+                new MessageEntity(index.getMessage(), ""),
                 HttpStatus.BAD_REQUEST
         );
     }

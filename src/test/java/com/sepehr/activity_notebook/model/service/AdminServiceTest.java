@@ -53,14 +53,6 @@ class AdminServiceTest {
         adminRepo.deleteAll();
     }
 
-    @SneakyThrows
-    @Test
-    void testSaveAndGetAdmin(){
-        Admin savedAdmin = adminService.findAdminByUserName(USER_NAME);
-        assertEquals(ADMIN, savedAdmin);
-        assertNotNull(savedAdmin.getJoinAt());
-    }
-
     @Test
     @SneakyThrows
     void testSaveAndUpdateAdmin(){
@@ -81,6 +73,12 @@ class AdminServiceTest {
     @Test
     void testRemoveAdminByUserName(){
         adminService.removeAdmin(USER_NAME);
+        assertEquals(0, adminRepo.count());
+    }
+
+    @Test
+    void testRemoveAll(){
+        adminService.removeAllAdmins();
         assertEquals(0, adminRepo.count());
     }
 
