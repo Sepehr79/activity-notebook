@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @SpringBootApplication
 @EnableMongoRepositories // To use mongodb repositories
-@EnableMongoAuditing // Annotation processing on mongo entity
+@EnableMongoAuditing // Annotation processing on mongo entities
 public class ActivityNotebookApplication {
 
 	public static void main(String[] args) {
