@@ -2,6 +2,8 @@ package com.sepehr.activity_notebook.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sepehr.activity_notebook.model.io.AdminInput;
+import com.sepehr.activity_notebook.model.io.AdminOutput;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
@@ -42,6 +44,19 @@ public class Admin extends Person{
 
     public void addEmployees(List<Employee> employees){
         this.employees.addAll(employees);
+    }
+
+    public AdminOutput adminOutput(){
+        return AdminOutput.builder()
+                .name(getName())
+                .lastName(getLastName())
+                .userName(userName)
+                .birthDay(getBirthDay())
+                .gender(getGender())
+                .employees(employees)
+                .joinAt(joinAt)
+                .password(password)
+                .build();
     }
 
 }
