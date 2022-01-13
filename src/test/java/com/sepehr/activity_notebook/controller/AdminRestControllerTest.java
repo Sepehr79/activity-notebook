@@ -2,7 +2,8 @@ package com.sepehr.activity_notebook.controller;
 
 import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Gender;
-import com.sepehr.activity_notebook.model.input.AdminDocument;
+import com.sepehr.activity_notebook.model.io.AdminInput;
+import com.sepehr.activity_notebook.model.io.AdminOutput;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,9 +15,13 @@ import org.springframework.boot.web.server.LocalServerPort;
 import javax.annotation.PostConstruct;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Simple CRUD operations on API
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AdminRestControllerTest {
 
@@ -28,7 +33,7 @@ class AdminRestControllerTest {
 
     private String url;
 
-    private static final AdminDocument ADMIN = AdminDocument.builder()
+    private static final AdminInput ADMIN = AdminInput.builder()
             .name("Sepehr")
             .lastName("Mollaei")
             .userName("sepehr79")
@@ -54,8 +59,24 @@ class AdminRestControllerTest {
 
     @Test
     void testGettingAdminByUserName(){
-        Admin admin = testRestTemplate.getForObject(url + "/sepehr79", Admin.class);
-        assertEquals("Sepehr" ,admin.getName());
+        AdminOutput adminOutput = testRestTemplate.getForObject(url + "/sepehr79", AdminOutput.class);
+        assertEquals("Sepehr" ,adminOutput.getName());
+    }
+
+    @Test
+    void testUpdateAdmin(){
+        final String userName = "/sepehr79";
+
+        AdminOutput adminOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
+        Date createDated = (Date) adminOutput.getJoinAt().clone();
+
+        testRestTemplate.put(url, adminOutput.toBuilder().name("Reza").build());// Change admin name
+
+        AdminOutput savedOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
+
+        assertEquals("Reza", savedOutput.getName());
+        assertEquals(1, testRestTemplate.getForObject(url, List.class).size());
+        assertEquals(createDated, savedOutput.getJoinAt());
     }
 
 }
