@@ -2,6 +2,7 @@ package com.sepehr.activity_notebook.controller;
 
 import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Gender;
+import com.sepehr.activity_notebook.model.io.AdminIO;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import org.junit.jupiter.api.AfterEach;
@@ -70,7 +71,8 @@ class AdminRestControllerTest {
         AdminOutput adminOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
         Date createDated = (Date) adminOutput.getJoinAt().clone();
 
-        testRestTemplate.put(url, adminOutput.toBuilder().name("Reza").build());// Change admin name
+        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).userName("sepehr79").password("1234").build();
+        testRestTemplate.put(url, adminInput);// Change admin name
 
         AdminOutput savedOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
 
@@ -78,5 +80,4 @@ class AdminRestControllerTest {
         assertEquals(1, testRestTemplate.getForObject(url, List.class).size());
         assertEquals(createDated, savedOutput.getJoinAt());
     }
-
 }

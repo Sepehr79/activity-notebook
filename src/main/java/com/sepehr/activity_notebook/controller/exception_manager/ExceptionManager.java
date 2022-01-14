@@ -1,4 +1,4 @@
-package com.sepehr.activity_notebook.controller.exception;
+package com.sepehr.activity_notebook.controller.exception_manager;
 
 import com.sepehr.activity_notebook.controller.pojo.MessageEntity;
 import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
@@ -39,6 +39,14 @@ public class ExceptionManager {
         return new ResponseEntity<>(
                 new MessageEntity(numberFormatException.getMessage(), "Wrong input format"),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(NullPointerException.class)
+    public ResponseEntity<MessageEntity> handleNullPointerException(){
+        return new ResponseEntity<>(
+            new MessageEntity("Null pointer exception", "Some fields are required (name, lastname, username, password)"),
+            HttpStatus.BAD_REQUEST
         );
     }
 }
