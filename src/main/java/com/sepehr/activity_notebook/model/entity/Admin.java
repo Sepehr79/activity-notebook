@@ -2,14 +2,17 @@ package com.sepehr.activity_notebook.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sepehr.activity_notebook.model.io.AdminOutput;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -23,13 +26,13 @@ import java.util.List;
 public class Admin extends Person{
 
     @Indexed(unique = true)
-    @NonNull
+    @NotNull(message = "is required")
     private String userName;
 
     @Id
     private String id;
 
-    @NonNull()
+    @NotNull(message = "is required")
     @JsonIgnore
     private String password;
 

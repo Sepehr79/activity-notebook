@@ -11,6 +11,7 @@ import com.sepehr.activity_notebook.model.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,9 +46,9 @@ public class AdminRestController {
     }
 
     /**
-     * Changing id & joinAt fields are impossible
+     * Changing id & joinAt & username fields are impossible
      * @throws UserNotFoundException if no result found
-     * @throws NullPointerException if username, password, name or last name was null
+     * @throws ConstraintViolationException if required fields was null
      */
     @PutMapping("/admins")
     public AdminOutput updateAdmin(@RequestBody AdminInput adminInput) {

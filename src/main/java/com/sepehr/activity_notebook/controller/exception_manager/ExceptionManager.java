@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.validation.ConstraintViolationException;
+
 @ControllerAdvice
 public class ExceptionManager {
     @ExceptionHandler(UserNotFoundException.class)
@@ -42,10 +44,10 @@ public class ExceptionManager {
         );
     }
 
-    @ExceptionHandler(NullPointerException.class)
-    public ResponseEntity<MessageEntity> handleNullPointerException(){
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<MessageEntity> handleNullPointerException(ConstraintViolationException constraintViolationException){
         return new ResponseEntity<>(
-            new MessageEntity("Null pointer exception", "Some fields are required (name, lastname, username, password)"),
+            new MessageEntity("Some fields are required", constraintViolationException.getLocalizedMessage()),
             HttpStatus.BAD_REQUEST
         );
     }
