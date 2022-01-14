@@ -1,4 +1,4 @@
-package com.sepehr.activity_notebook.controller.exception;
+package com.sepehr.activity_notebook.controller.exception_manager;
 
 import com.sepehr.activity_notebook.controller.pojo.MessageEntity;
 import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import javax.validation.ConstraintViolationException;
 
 @ControllerAdvice
 public class ExceptionManager {
@@ -39,6 +41,14 @@ public class ExceptionManager {
         return new ResponseEntity<>(
                 new MessageEntity(numberFormatException.getMessage(), "Wrong input format"),
                 HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<MessageEntity> handleNullPointerException(ConstraintViolationException constraintViolationException){
+        return new ResponseEntity<>(
+            new MessageEntity("Some fields are required", constraintViolationException.getLocalizedMessage()),
+            HttpStatus.BAD_REQUEST
         );
     }
 }

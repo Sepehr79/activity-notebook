@@ -2,16 +2,20 @@ package com.sepehr.activity_notebook.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sepehr.activity_notebook.model.io.AdminInput;
-import com.sepehr.activity_notebook.model.io.AdminOutput;
-import lombok.*;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.*;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Document("admins")
 @EqualsAndHashCode(callSuper = true, of = "userName")
@@ -22,13 +26,13 @@ import java.util.*;
 public class Admin extends Person{
 
     @Indexed(unique = true)
-    @NonNull
+    @NotNull(message = "is required")
     private String userName;
 
     @Id
     private String id;
 
-    @NonNull
+    @NotNull(message = "is required")
     @JsonIgnore
     private String password;
 
@@ -44,19 +48,6 @@ public class Admin extends Person{
 
     public void addEmployees(List<Employee> employees){
         this.employees.addAll(employees);
-    }
-
-    public AdminOutput adminOutput(){
-        return AdminOutput.builder()
-                .name(getName())
-                .lastName(getLastName())
-                .userName(userName)
-                .birthDay(getBirthDay())
-                .gender(getGender())
-                .employees(employees)
-                .joinAt(joinAt)
-                .password(password)
-                .build();
     }
 
 }

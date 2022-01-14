@@ -18,12 +18,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 
 @SpringBootTest
-@TestPropertySource(
-        properties = {
-                "spring.data.mongodb.database=test123",
-                "spring.data.mongodb.auto-index-creation=true"
-        }
-)
 class AdminServiceTest {
 
     private static final String USER_NAME = "sepehrmsm1379@gmail.com";

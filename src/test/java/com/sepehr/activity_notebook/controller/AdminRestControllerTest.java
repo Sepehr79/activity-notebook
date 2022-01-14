@@ -1,7 +1,9 @@
 package com.sepehr.activity_notebook.controller;
 
+import com.sepehr.activity_notebook.controller.pojo.MessageEntity;
 import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Gender;
+import com.sepehr.activity_notebook.model.io.AdminIO;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import org.junit.jupiter.api.AfterEach;
@@ -11,11 +13,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import javax.annotation.PostConstruct;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -70,7 +75,8 @@ class AdminRestControllerTest {
         AdminOutput adminOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
         Date createDated = (Date) adminOutput.getJoinAt().clone();
 
-        testRestTemplate.put(url, adminOutput.toBuilder().name("Reza").build());// Change admin name
+        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).userName("sepehr79").password("1234").build();
+        testRestTemplate.put(url, adminInput);// Change admin name
 
         AdminOutput savedOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
 
@@ -79,4 +85,11 @@ class AdminRestControllerTest {
         assertEquals(createDated, savedOutput.getJoinAt());
     }
 
+    @Test
+    void testValidationFields(){
+        AdminInput adminInput = AdminInput.builder().lastName("mollaei").userName("new").password("1234").build(); // Name is required
+        ResponseEntity<MessageEntity> responseEntity = testRestTemplate.postForEntity(url, adminInput, MessageEntity.class);
+        assertEquals(HttpStatus.BAD_REQUEST ,responseEntity.getStatusCode());
+        assertEquals("name: is required", Objects.requireNonNull(responseEntity.getBody()).getDescription());
+    }
 }
