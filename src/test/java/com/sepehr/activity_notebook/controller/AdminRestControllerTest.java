@@ -3,26 +3,27 @@ package com.sepehr.activity_notebook.controller;
 import com.sepehr.activity_notebook.controller.pojo.MessageEntity;
 import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Gender;
-import com.sepehr.activity_notebook.model.io.AdminIO;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
+import com.sepehr.activity_notebook.model.repo.AdminRepo;
+import com.sepehr.activity_notebook.security.PasswordEncryptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import javax.annotation.PostConstruct;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Simple CRUD operations on API
@@ -36,6 +37,12 @@ class AdminRestControllerTest {
     @Autowired
     TestRestTemplate testRestTemplate;
 
+    @Autowired
+    AdminRepo adminRepo;
+
+    @MockBean
+    PasswordEncryptor passwordEncryptor;
+
     private String url;
 
     private static final AdminInput ADMIN = AdminInput.builder()
@@ -47,9 +54,13 @@ class AdminRestControllerTest {
             .birthDay(new Date(2000, Calendar.SEPTEMBER, 12))
             .build();
 
+    private static final String ENCRYPTED_PASSWORD = "Encrypted password";
+
     @PostConstruct
     void createUrl(){
         url = "http://localhost:" + port + "/notebook/v1/admins";
+        Mockito.when(passwordEncryptor.encryptPassword("1234")).thenReturn(ENCRYPTED_PASSWORD);
+
     }
 
     @BeforeEach
@@ -83,6 +94,16 @@ class AdminRestControllerTest {
         assertEquals("Reza", savedOutput.getName());
         assertEquals(1, testRestTemplate.getForObject(url, List.class).size());
         assertEquals(createDated, savedOutput.getJoinAt());
+    }
+
+    @Test
+    void testPasswordEncryption(){
+        final String userName = "sample";
+        testRestTemplate.postForEntity(url, ADMIN.toBuilder().userName(userName).build(), Admin.class);
+        Optional<Admin> admin = adminRepo.findByUserName(userName);
+        if (admin.isEmpty())
+            fail();
+        assertEquals(ENCRYPTED_PASSWORD, admin.get().getPassword());
     }
 
     @Test

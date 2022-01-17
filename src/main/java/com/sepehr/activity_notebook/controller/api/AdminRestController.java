@@ -8,6 +8,7 @@ import com.sepehr.activity_notebook.model.io.AdminIO;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import com.sepehr.activity_notebook.model.service.AdminService;
+import com.sepehr.activity_notebook.security.PasswordEncryptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 public class AdminRestController {
 
     private final AdminService adminService;
+
+    private final PasswordEncryptor passwordEncryptor;
 
     @GetMapping("/admins")
     public List<AdminOutput> getAll(){
@@ -41,7 +44,13 @@ public class AdminRestController {
     public AdminOutput saveAdmin(@RequestBody AdminInput adminDocument) {
         if (adminService.existsByUserName(adminDocument.getUserName()))
             throw new DuplicateUserNameException(adminDocument.getUserName());
-        Admin admin = adminService.save(AdminIO.fromAdminInput(adminDocument));
+
+        Admin admin = adminService.save(
+                AdminIO.fromAdminInput(adminDocument).
+                        toBuilder()
+                        .password(passwordEncryptor.encryptPassword(adminDocument.getPassword()))
+                        .build()
+        );
         return AdminIO.fromAdmin(admin);
     }
 
@@ -55,7 +64,14 @@ public class AdminRestController {
         Optional<Admin> admin = adminService.findByUserName(adminInput.getUserName());
         if (admin.isPresent()){
             Admin updatingAdmin = AdminIO.fromAdminInput(adminInput);
-            return AdminIO.fromAdmin(adminService.save(updatingAdmin.toBuilder().id(admin.get().getId()).joinAt(admin.get().getJoinAt()).build()));
+            return AdminIO.fromAdmin(
+                    adminService.save(updatingAdmin
+                            .toBuilder()
+                            .id(admin.get().getId())
+                            .joinAt(admin.get().getJoinAt())
+                            .password(passwordEncryptor.encryptPassword(adminInput.getPassword()))
+                            .build())
+            );
         }
         throw new UserNotFoundException(adminInput.getUserName());
     }
