@@ -4,7 +4,6 @@ import com.sepehr.activity_notebook.controller.pojo.MessageEntity;
 import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
 import com.sepehr.activity_notebook.model.exception.UserNotFoundException;
-import com.sepehr.activity_notebook.model.io.AdminIO;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import com.sepehr.activity_notebook.model.service.AdminService;
@@ -28,14 +27,14 @@ public class AdminRestController {
 
     @GetMapping("/admins")
     public List<AdminOutput> getAll(){
-        return adminService.findAll().stream().map(AdminIO::fromAdmin).collect(Collectors.toList());
+        return adminService.findAll().stream().map(Admin::adminOutput).collect(Collectors.toList());
     }
 
     @GetMapping("/admins/{userName}")
     public AdminOutput getByUserName(@PathVariable String userName) {
         Optional<Admin> admin = adminService.findByUserName(userName);
         if (admin.isPresent()){
-            return AdminIO.fromAdmin(admin.get());
+            return admin.get().adminOutput();
         }
         throw new UserNotFoundException(userName);
     }
@@ -45,17 +44,11 @@ public class AdminRestController {
         if (adminService.existsByUserName(adminDocument.getUserName()))
             throw new DuplicateUserNameException(adminDocument.getUserName());
 
-        Admin admin = adminService.save(
-                AdminIO.fromAdminInput(adminDocument).
-                        toBuilder()
-                        .password(passwordEncryptor.encryptPassword(adminDocument.getPassword()))
-                        .build()
-        );
-        return AdminIO.fromAdmin(admin);
+        Admin admin = adminService.save(adminDocument.admin().toBuilder().password(passwordEncryptor.encryptPassword(adminDocument.getPassword())).build());
+        return admin.adminOutput();
     }
 
     /**
-     * Changing id & joinAt & username fields are impossible
      * @throws UserNotFoundException if no result found
      * @throws ConstraintViolationException if required fields was null
      */
@@ -63,15 +56,13 @@ public class AdminRestController {
     public AdminOutput updateAdmin(@RequestBody AdminInput adminInput) {
         Optional<Admin> admin = adminService.findByUserName(adminInput.getUserName());
         if (admin.isPresent()){
-            Admin updatingAdmin = AdminIO.fromAdminInput(adminInput);
-            return AdminIO.fromAdmin(
-                    adminService.save(updatingAdmin
-                            .toBuilder()
-                            .id(admin.get().getId())
-                            .joinAt(admin.get().getJoinAt())
-                            .password(passwordEncryptor.encryptPassword(adminInput.getPassword()))
-                            .build())
-            );
+            Admin updatingAdmin = adminInput.admin().toBuilder()
+                    .id(admin.get().getId())
+                    .joinAt(admin.get().getJoinAt())
+                    .password(passwordEncryptor.encryptPassword(adminInput.getPassword()))
+                    .build();
+            return adminService.save(updatingAdmin)
+                    .adminOutput();
         }
         throw new UserNotFoundException(adminInput.getUserName());
     }

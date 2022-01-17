@@ -22,8 +22,7 @@ import org.springframework.http.ResponseEntity;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple CRUD operations on API
@@ -60,7 +59,6 @@ class AdminRestControllerTest {
     void createUrl(){
         url = "http://localhost:" + port + "/notebook/v1/admins";
         Mockito.when(passwordEncryptor.encryptPassword("1234")).thenReturn(ENCRYPTED_PASSWORD);
-
     }
 
     @BeforeEach
