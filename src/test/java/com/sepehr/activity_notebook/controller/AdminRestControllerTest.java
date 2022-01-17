@@ -22,8 +22,7 @@ import org.springframework.http.ResponseEntity;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple CRUD operations on API
@@ -60,7 +59,7 @@ class AdminRestControllerTest {
     void createUrl(){
         url = "http://localhost:" + port + "/notebook/v1/admins";
         Mockito.when(passwordEncryptor.encryptPassword("1234")).thenReturn(ENCRYPTED_PASSWORD);
-
+        Mockito.when(passwordEncryptor.encryptPassword("123")).thenReturn("Sample");
     }
 
     @BeforeEach
@@ -86,7 +85,7 @@ class AdminRestControllerTest {
         AdminOutput adminOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
         Date createDated = (Date) adminOutput.getJoinAt().clone();
 
-        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).userName("sepehr79").password("1234").build();
+        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).userName("sepehr79").password("123").build();
         testRestTemplate.put(url, adminInput);// Change admin name
 
         AdminOutput savedOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
@@ -94,6 +93,11 @@ class AdminRestControllerTest {
         assertEquals("Reza", savedOutput.getName());
         assertEquals(1, testRestTemplate.getForObject(url, List.class).size());
         assertEquals(createDated, savedOutput.getJoinAt());
+
+        String password = adminRepo.findByUserName(adminInput.getUserName())
+                .orElseThrow(IllegalArgumentException::new).getPassword();
+        assertEquals("Sample", password);
+
     }
 
     @Test

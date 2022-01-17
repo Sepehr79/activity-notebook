@@ -2,6 +2,7 @@ package com.sepehr.activity_notebook.model.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.sepehr.activity_notebook.model.io.AdminOutput;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,6 +49,19 @@ public class Admin extends Person{
 
     public void addEmployees(List<Employee> employees){
         this.employees.addAll(employees);
+    }
+
+    @JsonIgnore
+    public AdminOutput adminOutput(){
+        return AdminOutput.builder()
+                .name(getName())
+                .lastName(getLastName())
+                .userName(userName)
+                .employees(employees)
+                .joinAt(joinAt)
+                .gender(getGender())
+                .birthDay(getBirthDay())
+                .build();
     }
 
 }

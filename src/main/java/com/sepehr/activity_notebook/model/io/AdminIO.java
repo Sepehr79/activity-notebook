@@ -33,28 +33,5 @@ public abstract class AdminIO {
     @JsonProperty("employees")
     private List<Employee> employees;
 
-    public static AdminOutput fromAdmin(Admin admin){
-        return AdminOutput.builder()
-                .name(admin.getName())
-                .lastName(admin.getLastName())
-                .birthDay(admin.getBirthDay())
-                .gender(admin.getGender())
-                .userName(admin.getUserName())
-                .employees(admin.getEmployees())
-                .joinAt(admin.getJoinAt())
-                .build();
-    }
-
-    public static Admin fromAdminInput(AdminInput adminInput){
-        return Admin.builder()
-                .name(adminInput.getName())
-                .lastName(adminInput.getLastName())
-                .birthDay(adminInput.getBirthDay())
-                .gender(adminInput.getGender())
-                .userName(adminInput.getUserName())
-                .employees(adminInput.getEmployees())
-                .password(adminInput.getPassword())
-                .build();
-    }
 
 }
