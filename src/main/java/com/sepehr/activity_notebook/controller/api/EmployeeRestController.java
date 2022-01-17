@@ -1,4 +1,4 @@
-package com.sepehr.activity_notebook.controller;
+package com.sepehr.activity_notebook.controller.api;
 
 import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Employee;
