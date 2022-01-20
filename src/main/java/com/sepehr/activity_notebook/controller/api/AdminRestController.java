@@ -51,6 +51,7 @@ public class AdminRestController {
     /**
      * @throws UserNotFoundException if no result found
      * @throws ConstraintViolationException if required fields was null
+     * We can't change username because of mongo index
      */
     @PutMapping("/admins/{userName}")
     public AdminOutput updateAdmin(@RequestBody AdminInput adminInput, @PathVariable String userName) {
@@ -58,14 +59,14 @@ public class AdminRestController {
         if (admin.isPresent()){
             Admin updatingAdmin = adminInput.admin().toBuilder()
                     .id(admin.get().getId())
-                    .joinAt(admin.get().getJoinAt())
                     .userName(userName)
+                    .joinAt(admin.get().getJoinAt())
                     .password(passwordEncryptor.encryptPassword(adminInput.getPassword()))
                     .build();
             return adminService.save(updatingAdmin)
                     .adminOutput();
         }
-        throw new UserNotFoundException(adminInput.getUserName());
+        throw new UserNotFoundException(userName);
     }
 
     @DeleteMapping("/admins/{userName}")

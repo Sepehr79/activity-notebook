@@ -7,7 +7,7 @@ public class DuplicateUserNameException extends RuntimeException{
     @Getter
     private final String userName;
 
-    private static final String MESSAGE = "User not found with the given username.";
+    private static final String MESSAGE = "Username already taken with the given username.";
 
     public DuplicateUserNameException(String userName) {
         this.userName = userName;

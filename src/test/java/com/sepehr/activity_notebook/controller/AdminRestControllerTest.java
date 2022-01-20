@@ -22,7 +22,8 @@ import org.springframework.http.ResponseEntity;
 import javax.annotation.PostConstruct;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Simple CRUD operations on API
@@ -85,7 +86,7 @@ class AdminRestControllerTest {
         AdminOutput adminOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
         Date createDated = (Date) adminOutput.getJoinAt().clone();
 
-        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).password("123").build();
+        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).userName("sepehr80").password("123").build();
         testRestTemplate.put(url + userName, adminInput);// Change admin name
 
         AdminOutput savedOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
