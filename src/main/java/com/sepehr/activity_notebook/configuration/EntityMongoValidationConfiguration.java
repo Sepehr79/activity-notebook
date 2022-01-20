@@ -1,4 +1,4 @@
-package com.sepehr.activity_notebook.controller.validation;
+package com.sepehr.activity_notebook.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,7 +9,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
  * Enable entity validation on mongo documents
  */
 @Configuration
-public class EntityValidationConfiguration {
+public class EntityMongoValidationConfiguration {
     @Bean
     public ValidatingMongoEventListener validatingMongoEventListener() {
         return new ValidatingMongoEventListener(validator());

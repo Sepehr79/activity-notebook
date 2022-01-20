@@ -2,7 +2,6 @@ package com.sepehr.activity_notebook.model.io;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.entity.Employee;
 import com.sepehr.activity_notebook.model.entity.Gender;
 import lombok.Getter;
