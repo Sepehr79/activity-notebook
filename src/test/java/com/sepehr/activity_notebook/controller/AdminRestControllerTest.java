@@ -85,8 +85,8 @@ class AdminRestControllerTest {
         AdminOutput adminOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
         Date createDated = (Date) adminOutput.getJoinAt().clone();
 
-        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).userName("sepehr79").password("123").build();
-        testRestTemplate.put(url, adminInput);// Change admin name
+        AdminInput adminInput = AdminInput.builder().name("Reza").lastName(adminOutput.getLastName()).password("123").build();
+        testRestTemplate.put(url + userName, adminInput);// Change admin name
 
         AdminOutput savedOutput = testRestTemplate.getForObject(url + userName, AdminOutput.class);
 
@@ -94,7 +94,7 @@ class AdminRestControllerTest {
         assertEquals(1, testRestTemplate.getForObject(url, List.class).size());
         assertEquals(createDated, savedOutput.getJoinAt());
 
-        String password = adminRepo.findByUserName(adminInput.getUserName())
+        String password = adminRepo.findByUserName(savedOutput.getUserName())
                 .orElseThrow(IllegalArgumentException::new).getPassword();
         assertEquals("Sample", password);
 

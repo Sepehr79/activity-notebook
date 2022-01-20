@@ -52,13 +52,14 @@ public class AdminRestController {
      * @throws UserNotFoundException if no result found
      * @throws ConstraintViolationException if required fields was null
      */
-    @PutMapping("/admins")
-    public AdminOutput updateAdmin(@RequestBody AdminInput adminInput) {
-        Optional<Admin> admin = adminService.findByUserName(adminInput.getUserName());
+    @PutMapping("/admins/{userName}")
+    public AdminOutput updateAdmin(@RequestBody AdminInput adminInput, @PathVariable String userName) {
+        Optional<Admin> admin = adminService.findByUserName(userName);
         if (admin.isPresent()){
             Admin updatingAdmin = adminInput.admin().toBuilder()
                     .id(admin.get().getId())
                     .joinAt(admin.get().getJoinAt())
+                    .userName(userName)
                     .password(passwordEncryptor.encryptPassword(adminInput.getPassword()))
                     .build();
             return adminService.save(updatingAdmin)
