@@ -6,7 +6,6 @@ import com.sepehr.activity_notebook.model.entity.Gender;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import com.sepehr.activity_notebook.model.repo.AdminRepo;
-import com.sepehr.activity_notebook.security.PasswordEncryptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +39,6 @@ class AdminRestControllerTest {
     @Autowired
     AdminRepo adminRepo;
 
-    @MockBean
-    PasswordEncryptor passwordEncryptor;
 
     private String url;
 
@@ -54,13 +51,9 @@ class AdminRestControllerTest {
             .birthDay(new Date(2000, Calendar.SEPTEMBER, 12))
             .build();
 
-    private static final String ENCRYPTED_PASSWORD = "Encrypted password";
-
     @PostConstruct
     void createUrl(){
         url = "http://localhost:" + port + "/notebook/v1/admins";
-        Mockito.when(passwordEncryptor.encryptPassword("1234")).thenReturn(ENCRYPTED_PASSWORD);
-        Mockito.when(passwordEncryptor.encryptPassword("123")).thenReturn("Sample");
     }
 
     @BeforeEach
@@ -97,7 +90,7 @@ class AdminRestControllerTest {
 
         String password = adminRepo.findByUserName(savedOutput.getUserName())
                 .orElseThrow(IllegalArgumentException::new).getPassword();
-        assertEquals("Sample", password);
+        assertEquals("123", password);
 
     }
 
@@ -108,7 +101,7 @@ class AdminRestControllerTest {
         Optional<Admin> admin = adminRepo.findByUserName(userName);
         if (admin.isEmpty())
             fail();
-        assertEquals(ENCRYPTED_PASSWORD, admin.get().getPassword());
+        assertEquals("1234", admin.get().getPassword());
     }
 
     @Test
