@@ -4,6 +4,7 @@ import com.sepehr.activity_notebook.model.entity.Admin;
 import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
 import com.sepehr.activity_notebook.model.repo.AdminRepo;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
