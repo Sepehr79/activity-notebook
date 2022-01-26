@@ -38,3 +38,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Sepehr79_activity-notebook
+
+      - name: fix code coverage paths
+        working-directory: ./coverage
+        run: |
+              sed -i 's/\/home\/runner\/work\/activity-notebook\/activity-notebook\//\/github\/workspace\//g' lcov.info
+              sed -i 's/\/home\/runner\/work\/activity-notebook\/activity-notebook\//\/github\/workspace\//g' sonar-cloud-reporter.xml
