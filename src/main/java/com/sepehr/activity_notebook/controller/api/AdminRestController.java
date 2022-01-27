@@ -8,12 +8,11 @@ import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import com.sepehr.activity_notebook.model.service.AdminService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequestMapping("/notebook/v1")
 @RestController
@@ -22,10 +21,7 @@ public class AdminRestController {
 
     private final AdminService adminService;
 
-    @GetMapping("/admins")
-    public List<AdminOutput> getAll(){
-        return adminService.findAll().stream().map(Admin::adminOutput).collect(Collectors.toList());
-    }
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @GetMapping("/admins/{userName}")
     public AdminOutput getByUserName(@PathVariable String userName) {
@@ -41,7 +37,7 @@ public class AdminRestController {
         if (adminService.existsByUserName(adminDocument.getUserName()))
             throw new DuplicateUserNameException(adminDocument.getUserName());
 
-        Admin admin = adminService.save(adminDocument.admin().toBuilder().password(adminDocument.getPassword()).build());
+        Admin admin = adminService.save(adminDocument.admin().toBuilder().password(bCryptPasswordEncoder.encode(adminDocument.getPassword())).build());
         return admin.adminOutput();
     }
 
@@ -58,7 +54,7 @@ public class AdminRestController {
                     .id(admin.get().getId())
                     .userName(userName)
                     .joinAt(admin.get().getJoinAt())
-                    .password(adminInput.getPassword())
+                    .password(bCryptPasswordEncoder.encode(adminInput.getPassword()))
                     .build();
             return adminService.save(updatingAdmin)
                     .adminOutput();
@@ -71,12 +67,5 @@ public class AdminRestController {
         adminService.removeAdmin(userName);
         return new MessageEntity("Process successfully completed.", "Employee removed with username: " + userName);
     }
-
-    @DeleteMapping("/admins")
-    public MessageEntity removeAll(){
-        adminService.removeAllAdmins();
-        return new MessageEntity("Process successfully completed.", "All employees removed.");
-    }
-
 
 }
