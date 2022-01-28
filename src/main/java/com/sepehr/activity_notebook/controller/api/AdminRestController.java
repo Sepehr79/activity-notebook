@@ -2,49 +2,33 @@ package com.sepehr.activity_notebook.controller.api;
 
 import com.sepehr.activity_notebook.controller.pojo.MessageEntity;
 import com.sepehr.activity_notebook.model.entity.Admin;
-import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
 import com.sepehr.activity_notebook.model.exception.UserNotFoundException;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
-import com.sepehr.activity_notebook.model.service.AdminService;
-import com.sepehr.activity_notebook.security.PasswordEncryptor;
+import com.sepehr.activity_notebook.security.AdminDetailsManager;
+import com.sepehr.activity_notebook.security.entity.AdminDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RequestMapping("/notebook/v1")
 @RestController
 @RequiredArgsConstructor
 public class AdminRestController {
 
-    private final AdminService adminService;
-
-    private final PasswordEncryptor passwordEncryptor;
-
-    @GetMapping("/admins")
-    public List<AdminOutput> getAll(){
-        return adminService.findAll().stream().map(Admin::adminOutput).collect(Collectors.toList());
-    }
+    private final AdminDetailsManager adminDetailsManager;
 
     @GetMapping("/admins/{userName}")
     public AdminOutput getByUserName(@PathVariable String userName) {
-        Optional<Admin> admin = adminService.findByUserName(userName);
-        if (admin.isPresent()){
-            return admin.get().adminOutput();
-        }
-        throw new UserNotFoundException(userName);
+        AdminDetails adminDetails = (AdminDetails) adminDetailsManager.loadUserByUsername(userName);
+        return adminDetails.getAdmin().adminOutput();
     }
 
     @PostMapping("/admins")
     public AdminOutput saveAdmin(@RequestBody AdminInput adminDocument) {
-        if (adminService.existsByUserName(adminDocument.getUserName()))
-            throw new DuplicateUserNameException(adminDocument.getUserName());
-
-        Admin admin = adminService.save(adminDocument.admin().toBuilder().password(passwordEncryptor.encryptPassword(adminDocument.getPassword())).build());
+        Admin admin = adminDocument.admin();
+        adminDetailsManager.createUser(new AdminDetails(admin));
         return admin.adminOutput();
     }
 
@@ -55,31 +39,20 @@ public class AdminRestController {
      */
     @PutMapping("/admins/{userName}")
     public AdminOutput updateAdmin(@RequestBody AdminInput adminInput, @PathVariable String userName) {
-        Optional<Admin> admin = adminService.findByUserName(userName);
-        if (admin.isPresent()){
-            Admin updatingAdmin = adminInput.admin().toBuilder()
-                    .id(admin.get().getId())
-                    .userName(userName)
-                    .joinAt(admin.get().getJoinAt())
-                    .password(passwordEncryptor.encryptPassword(adminInput.getPassword()))
-                    .build();
-            return adminService.save(updatingAdmin)
-                    .adminOutput();
-        }
-        throw new UserNotFoundException(userName);
+        AdminDetails adminDetails = (AdminDetails) adminDetailsManager.loadUserByUsername(userName);
+        Admin updatingAdmin = adminInput.admin().toBuilder()
+                .id(adminDetails.getAdmin().getId())
+                .userName(adminDetails.getUsername())
+                .joinAt(adminDetails.getAdmin().getJoinAt())
+                .build();
+        adminDetailsManager.updateUser(new AdminDetails(updatingAdmin));
+        return updatingAdmin.adminOutput();
     }
 
     @DeleteMapping("/admins/{userName}")
     public MessageEntity removeAdmin(@PathVariable String userName){
-        adminService.removeAdmin(userName);
+        adminDetailsManager.deleteUser(userName);
         return new MessageEntity("Process successfully completed.", "Employee removed with username: " + userName);
     }
-
-    @DeleteMapping("/admins")
-    public MessageEntity removeAll(){
-        adminService.removeAllAdmins();
-        return new MessageEntity("Process successfully completed.", "All employees removed.");
-    }
-
 
 }

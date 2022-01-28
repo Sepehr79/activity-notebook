@@ -5,6 +5,7 @@ import com.sepehr.activity_notebook.model.exception.DuplicateUserNameException;
 import com.sepehr.activity_notebook.model.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -49,6 +50,14 @@ public class ExceptionManager {
         return new ResponseEntity<>(
             new MessageEntity("Some fields are required", constraintViolationException.getLocalizedMessage()),
             HttpStatus.BAD_REQUEST
+        );
+    }
+
+    @ExceptionHandler(AuthenticationServiceException.class)
+    public ResponseEntity<MessageEntity> handleAuthenticationServiceException(AuthenticationServiceException exception){
+        return new ResponseEntity<>(
+                new MessageEntity("Authentication failed", exception.getMessage()),
+                HttpStatus.UNAUTHORIZED
         );
     }
 }

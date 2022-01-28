@@ -6,11 +6,12 @@ import com.sepehr.activity_notebook.model.entity.Gender;
 import com.sepehr.activity_notebook.model.io.AdminInput;
 import com.sepehr.activity_notebook.model.io.AdminOutput;
 import com.sepehr.activity_notebook.model.repo.AdminRepo;
-import com.sepehr.activity_notebook.security.PasswordEncryptor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -18,6 +19,8 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -29,6 +32,8 @@ import static org.junit.jupiter.api.Assertions.fail;
  * Simple CRUD operations on API
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class AdminRestControllerTest {
 
     @LocalServerPort
@@ -41,7 +46,9 @@ class AdminRestControllerTest {
     AdminRepo adminRepo;
 
     @MockBean
-    PasswordEncryptor passwordEncryptor;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private static final String ENCRYPTED_PASSWORD = "SIMPLE";
 
     private String url;
 
@@ -54,13 +61,11 @@ class AdminRestControllerTest {
             .birthDay(new Date(2000, Calendar.SEPTEMBER, 12))
             .build();
 
-    private static final String ENCRYPTED_PASSWORD = "Encrypted password";
-
     @PostConstruct
-    void createUrl(){
+    void config(){
         url = "http://localhost:" + port + "/notebook/v1/admins";
-        Mockito.when(passwordEncryptor.encryptPassword("1234")).thenReturn(ENCRYPTED_PASSWORD);
-        Mockito.when(passwordEncryptor.encryptPassword("123")).thenReturn("Sample");
+        Mockito.when(bCryptPasswordEncoder.encode("123")).thenReturn(ENCRYPTED_PASSWORD);
+        Mockito.when(bCryptPasswordEncoder.encode("1234")).thenReturn(ENCRYPTED_PASSWORD);
     }
 
     @BeforeEach
@@ -97,7 +102,7 @@ class AdminRestControllerTest {
 
         String password = adminRepo.findByUserName(savedOutput.getUserName())
                 .orElseThrow(IllegalArgumentException::new).getPassword();
-        assertEquals("Sample", password);
+        assertEquals(ENCRYPTED_PASSWORD, password);
 
     }
 

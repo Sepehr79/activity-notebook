@@ -24,7 +24,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-public class Admin extends Person{
+public class Admin extends Person  {
 
     @Indexed(unique = true)
     @NotNull(message = "is required")
@@ -63,5 +63,4 @@ public class Admin extends Person{
                 .birthDay(getBirthDay())
                 .build();
     }
-
 }
